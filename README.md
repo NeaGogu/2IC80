@@ -20,4 +20,7 @@ Should have different modalities that automatically poisons arp caches and uses 
 
 ## DNS
 
+1. Ask to type which domain to spoof?
+2. Choose which IP to redirect spoofed domain/
+
 ## SSL Strip
