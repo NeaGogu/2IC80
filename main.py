@@ -1,13 +1,20 @@
-from scapy import get_if_list
+from scapy.arch import get_if_list
+from time import sleep
 
-from attacks import arp_poisoning
+import arp_poisoning, randomducks
 
 # We define the settings here which are to be altered by the attacker when chosing the way 
 # the attack is to be done. Current values contain some default settings
 settings = {"interrupted":False, "interfaces":[], "restore_arp_cache": True}
 
-def start_attack(0:
+def start_attack():
     print("Choose interfaces you would like to (discover and) attack")
+    interfaces = get_if_list()
+    interface_sets = makeInterfacePowersets(interfaces)
+    settings["interfaces"] = interface_sets
+    print (interface_sets)
+   
+    return
 
 if __name__ == 'main':
     try:
@@ -16,5 +23,6 @@ if __name__ == 'main':
         settings["interrupted"] = True
         print("Attack stopped... Checking for settings if arp cache is to be restored...")
         if settings["restore_arp_cache"]:
-            arp_poisoning.restore()#FU have fix this
+            for interface in settings["interface"]:
+                arp_poisoning.restore(interface, settings)#FU have fix this
         
