@@ -1,28 +1,36 @@
-from scapy.arch import get_if_list
-from time import sleep
+from scapy.all import *
+from scapy.layers import *
+import threading
+import time
+import socket
 
-import arp_poisoning, randomducks
+# Default variables
+Net_Interface = "eth0" 
 
-# We define the settings here which are to be altered by the attacker when chosing the way 
-# the attack is to be done. Current values contain some default settings
-settings = {"interrupted":False, "interfaces":[], "restore_arp_cache": True}
 
-def start_attack():
-    print("Choose interfaces you would like to (discover and) attack")
-    interfaces = get_if_list()
-    interface_sets = makeInterfacePowersets(interfaces)
-    settings["interfaces"] = interface_sets
-    print (interface_sets)
-   
-    return
+print("Select attack to perform on Victim who hates ducks: \n")
+print("1:	ARP Poisoning" )
+print("2:	DNS Spoofing")
+print("3:	ARP Poisoning & DNS Spoofing \n \n")
+attack_to_perform = input()
 
-if __name__ == 'main':
-    try:
-        start_attack()
-    except KeyboardInterrupt: #in case attacker stops terminal execution with Ctrl+c
-        settings["interrupted"] = True
-        print("Attack stopped... Checking for settings if arp cache is to be restored...")
-        if settings["restore_arp_cache"]:
-            for interface in settings["interface"]:
-                arp_poisoning.restore(interface, settings)#FU have fix this
-        
+if attack_to_perform == 1:
+	arp()
+	print("arp")
+elif attack_to_perform == 2:
+	dns()
+	print("dns")
+elif attack_to_perform == 3:
+	arp()
+	dns()
+	print("arp and dns")
+
+def arp():
+	print("arp")
+
+def dns():
+	return
+
+print("Set your Victim's IP")
+VICTIM_IP = input()
+print(VICTIM_IP)
