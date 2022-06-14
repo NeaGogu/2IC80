@@ -2,6 +2,7 @@ from struct import pack
 from xmlrpc.client import Boolean
 from scapy.all import DNS, UDP, IP, DNSRR, DNSQR , sr1, send, sniff
 from scapy.layers.l2 import Ether
+# from netfilterqueue import NetfilterQueue
 
 from utils.interface import InterfaceConfig
 
@@ -28,7 +29,6 @@ class DNSSpoof:
 			prn=self.analyze_packet)
 
 		# print(packet[0].show())
-		self.analyze_packet(packet[0])
 
 	def analyze_packet(self, packet: Ether):
 
