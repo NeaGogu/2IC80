@@ -55,9 +55,9 @@ def start():
 
 			print("(Re-)poisoned the ARP of the following IPs: " + VICTIM_IP +" and "+ SERVER_IP)
 			time.sleep(20)
-    			
+				
 			if settings["duckforce"] == False:
-			    break
+				break
 		return
 	
 
@@ -140,8 +140,8 @@ def restore_arp(VICTIM_MAC, VICTIM_IP):
 		arp[ARP].hwdst = SERVER_MAC
 		arp[ARP].pdst = SERVER_IP
 		sendp(arp, iface=Net_Interface)
-        
-        	# Restore the ARP cache of the Server
+		
+			# Restore the ARP cache of the Server
 		arp = Ether() / ARP()
 		arp[Ether].src = ATTACKER_MAC
 		arp[Ether].dst = VICTIM_MAC
@@ -157,11 +157,11 @@ if __name__ == '__main__':
 	try:
 		start()
 		if settings["restore_arp_choice"]:
-                    print("\n *** Restoring ARP caches of the infected Victims... ***")
-                    restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
+					print("\n *** Restoring ARP caches of the infected Victims... ***")
+					restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
 			
 	except KeyboardInterrupt:
-        	print('Exiting program ...')
-        	if settings["restore_arp_choice"]:
-                    print("Restoring ARP caches of the infected Victims...")
-                    restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
+			print('Exiting program ...')
+			if settings["restore_arp_choice"]:
+					print("Restoring ARP caches of the infected Victims...")
+					restore_arp(settings["VICTIM_MAC"], settings['VICTIM_IP'])
