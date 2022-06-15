@@ -139,7 +139,7 @@ if __name__ == "__main__":
 										 "192.168.56.169")
 
 	dns_att = DNSSpoof(net_interface= interface_config, forward=True, mal_dns_table= {
-		"muievladimir2.com": "192.168.56.102",
+		"www.muievladimir2.com": "192.168.56.102",
 		"www.muie.com": "192.168.56.102",
 		"www.muie2.com": "192.168.56.102",
 		"www.mortiimei.com": "192.168.56.102",
