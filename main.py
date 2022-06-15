@@ -17,7 +17,7 @@ settings["restore_arp_choice"] = False
 settings["VICTIM_MAC"] = "AA:AA:AA:AA:AA"
 settings["VICTIM_IP"] = "0.0.0.0"
 Net_Interface = "eth0" 
-SERVER_IP = "192.168.56.102"
+SERVER_IP = "192.168.56.103"
 SERVER_MAC = '08:00:27:CC:08:6F'
 ATTACKER_MAC = get_mac_address(interface=Net_Interface)
 settings["duckforce"] = False # Continously ARP poison the victims in order to not let them restore the ARP Caches
