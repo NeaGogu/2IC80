@@ -28,8 +28,26 @@ def begin():
 	attack_to_perform = input()
 	if attack_to_perform == "1":
 	
+	#search for available hosts
+		hosts=[]
+		target = '192.168.56.0/24'
+ 
+		scanner = nmap.PortScanner()
+		scanner.scan(target, arguments='-sn', sudo=True)
+ 
+		hosts = []
+ 
+		for host in scanner.all_hosts():
+			addresses = scanner[host]['addresses']
+ 
+			hosts.append(addresses)
+		print('\n*** Hosts available to attack ***\n') 
+		print(hosts)
+	
 		print("\n \nSet your Victim's IP Address")
 		Victim1_ip= input()
+		
+		print("\n \nVictim selected with MAC Address: " + getmacbyip(Victim1_ip))
 	
 		print("\n \nWould you like to become Man-In-The_Middle?")
 		choice=input()
@@ -75,7 +93,7 @@ def begin():
 		#except KeyboardInterrupt:
 		#		pass
 		#print("Restoring ARP Cache...")
-		#arp_attack.restore_arp()
+		#arp_attack_4dns.restore_arp()
 		print("dns")
 		
 	return 
