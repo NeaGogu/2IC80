@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 __pycache__/
 venv
+=======
+venv
+__pycache__
+>>>>>>> merge
