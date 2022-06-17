@@ -6,7 +6,9 @@ from typing import Dict, List
 
 import nmap
 from arp_spoofing import ARPSpoof
-from utils.interface import interface_config
+from utils.configuration import interface_config
+from utils.configuration import console
+
 
 from dns_spoofing import DNSSpoof
 
@@ -16,11 +18,6 @@ from rich.prompt import IntPrompt, Prompt, Confirm
 from rich.table import Table
 from rich.status import Status
 
-
-from utils.configuration import console
-
-# interface_config = InterfaceConfig("eth0", "08:00:27:95:bd:54",
-# 									   "192.168.56.169", "192.168.56.0/24")
 
 # have this loaded from a json file??
 DNS_CONFIG = {
@@ -41,6 +38,8 @@ style = "magenta bold"
 
 
 def main():
+    
+   
 
 	duck = r"""
 	                                                               
@@ -132,7 +131,8 @@ def start_arp_attack():
 			ARP_CONFIG['duckforce'] = not ARP_CONFIG['duckforce']
    
 		if choice == 5:
-			arp_attack = ARPSpoof( 
+			arp_attack = ARPSpoof(
+				interface_config=interface_config,
 				victim1_ip=ARP_CONFIG["victim_ip"],
 				victim2_ip=ARP_CONFIG["impersonate_ip"],
     			mitm=ARP_CONFIG["MITM"], restore=ARP_CONFIG["restore"],
@@ -223,6 +223,7 @@ def start_dns_attack():
 			victim_ip = Prompt.ask("Where do you want to intercept DNS requests from?", default="192.168.56.101")
    
 			arp_thread = ARPSpoof( 
+				interface_config=interface_config,
 				victim1_ip=victim_ip,
 				victim2_ip=DNS_CONFIG["dns_server_ip"],
     			)
