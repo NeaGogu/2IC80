@@ -5,7 +5,7 @@ from scapy.all import DNS, UDP, IP, DNSRR, DNSQR , sr1, send, sniff
 from scapy.layers.l2 import Ether
 # from netfilterqueue import NetfilterQueue
 
-from utils.interface import InterfaceConfig
+from utils.configuration import InterfaceConfig
 
 
 class DNSSpoof:

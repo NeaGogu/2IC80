@@ -12,7 +12,7 @@ import sys
 from getmac import get_mac_address
 #from dns_spoofing import settings
 
-from utils.interface import interface_config
+from utils.configuration import interface_config
 
 
 class ARPSpoof(threading.Thread):
