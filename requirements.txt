@@ -1,0 +1,12 @@
+blessed==1.19.1
+commonmark==0.9.1
+getmac==0.8.3
+Pygments==2.12.0
+python-editor==1.0.4
+python-nmap==0.7.1
+readchar==3.0.5
+rich==12.4.4
+scapy==2.4.5
+six==1.16.0
+wcwidth==0.2.5
+yapf==0.32.0
