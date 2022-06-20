@@ -4,7 +4,7 @@
 
 Tool for:
 
-- ARP <- malaka christoforos
+- ARP <- good christoforos
 - DNS spoofing <- stavros
 - SSL stripping <- romanian
 
